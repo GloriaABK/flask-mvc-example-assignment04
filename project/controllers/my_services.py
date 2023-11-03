@@ -57,21 +57,21 @@ def query_records():
 def save_employee_info():
     record = json.loads(request.data)
     print(record)
-    return save_employee(name['name'], address['address'], branch['branch'])
+    return save_employee(record['name'], record['address'], record['branch'])
 
 
 @app.route('/update_employee', methods=['PUT'])
 def update_employee_info():
     record = json.loads(request.data)
     print(record)
-    return update_employee(name['name'], address['address'], branch['branch'])
+    return update_employee(record['name'], record['address'], record['branch'])
 
 
 @app.route('/delete_employee', methods=['DELETE'])
 def delete_employee_info():
     record = json.loads(request.data)
     print(record)
-    delete_employee(name['name'])
+    delete_employee(record['name'])
     return findAllEmployees()
 
 
@@ -85,21 +85,21 @@ def query_records():
 def save_customer_info():
     record = json.loads(request.data)
     print(record)
-    return save_customer(name['name'], age['age'], address['address'])
+    return save_customer(record['name'], record['age'], record['address'])
 
 
 @app.route('/update_customer', methods=['PUT'])
 def update_customer_info():
     record = json.loads(request.data)
     print(record)
-    return update_employee(name['name'], age['age'], address['address'])
+    return update_employee(record['name'], record['age'], record['address'])
 
 
 @app.route('/delete_customer', methods=['DELETE'])
 def delete_customer_info():
     record = json.loads(request.data)
     print(record)
-    delete_customer(name['name'])
+    delete_customer(record['name'])
     return findAllCustomers()
 
 
@@ -119,7 +119,7 @@ def order_car(car_id, customer_id):
         return f"Order placed by Customer ID:{customer_id} for car ID: {car_id}"
 
 
-@app.route('/cancel-order-car', methods=['POST'])
+@app.route('/cancel-order-car', methods=['PUT'])
 def cancel_order():
     data = request.json
     customer_id = data.get('customer_id')
@@ -132,7 +132,7 @@ def cancel_order():
         return "Customer does not have a booking for this car", 400
 
 
-@app.route('/rent-car', methods =['POST'])
+@app.route('/rent-car', methods =['PUT'])
 def rent_car():
     data = request.json
     customer_id = data.get('customer_id')
@@ -161,9 +161,6 @@ def return_car():
         return 'Car has been successfully returned'
     else:
         return 'Invalid. Customer has no active bookings for this car', 400
-
-
-
 
 
 
