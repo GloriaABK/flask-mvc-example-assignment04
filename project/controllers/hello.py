@@ -23,3 +23,4 @@ def index():
             "email": "Not specified"
         }
     return render_template('index.html.j2', data=data)
+

@@ -15,6 +15,7 @@ def node_to_json(node):
     node_properties = dict(node.items())
     return node_properties
 
+
 def findAllCustomers():
     with _get_connection().session() as session:
         customer = session.run("MATCH (a:Customer) RETURN a;")
@@ -24,16 +25,20 @@ def findAllCustomers():
 
 
 def save_customer(name, age, address):
-    customer = _get_connection().execute_query(
-        "MERGE (a:Employee{name: $name, address: $address, branch:$branch}) RETURN a;", name=name,
-        age=age, address=address)
-    nodes_json = [node_to_json(record["a"]) for record in customer]
-    print(nodes_json)
-    return nodes_json
+    with _get_connection().session() as session:
+        customer = session.write_transaction(_save_customer, name, age, address)
+        return [node_to_json(record) for record in customer]
+
+
+def _save_customer(tx, name, age, address):
+    result = tx.run("MERGE (a:customer{name: $name, age:$age, address: $address}) RETURN a;", name=name,
+                    age=age, address=address)
+    return [node_to_json(record) for record in result]
+
 
 def update_customer(name, age, address):
     with _get_connection().session() as session:
-        customer = session.run("MATCH (a:Customer{name: set a.name=$name, a.age=$age, a.address=$address}) RETURN a;",
+        customer = session.run("MATCH (a:Customer{name: SET a.name=$name, a.age=$age, a.address=$address}) RETURN a;",
                                name=name,
                                age=age,
                                address=address)
@@ -44,4 +49,11 @@ def update_customer(name, age, address):
 
 
 def delete_customer(name):
-    _get_connection().execute_query("MATCH (a:employee{name: $name}) delete a;", name=name)
+    with _get_connection().session() as session:
+        session.write_transaction(_delete_customer, name)
+
+
+def _delete_customer(tx, name):
+    tx.run("MATCH (a:employee{name: $name}) delete a;", name=name)
+
+

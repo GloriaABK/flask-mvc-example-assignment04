@@ -36,7 +36,7 @@ def save_car(make, model, reg, year, capacity):
 
 def update_car(make, model, reg, year, capacity): 
     with _get_connection().session() as session:
-        cars = session.run("MATCH (a:Car{reg:$reg}) set a.make=$make, a.model=$model, a.year = $year, a.capacity = $capacity RETURN a;", reg=reg, make=make, model=model, year=year, capacity=capacity)
+        cars = session.run("MATCH (a:Car{reg:$reg}) SET a.make=$make, a.model=$model, a.year = $year, a.capacity = $capacity RETURN a;", reg=reg, make=make, model=model, year=year, capacity=capacity)
         print(cars)
         nodes_json = [node_to_json(record["a"]) for record in cars] 
         print(nodes_json)
@@ -44,3 +44,5 @@ def update_car(make, model, reg, year, capacity):
     
 def delete_car(reg):
     _get_connection().execute_query("MATCH (a:Car{reg: $reg}) delete a;", reg=reg)
+
+

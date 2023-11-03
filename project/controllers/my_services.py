@@ -49,7 +49,7 @@ def delete_car_info():
 # Functions for employees
 
 @app.route('/get_employees', methods=['GET'])
-def query_records():
+def query_records_employees():
     return findAllEmployees()
 
 
@@ -77,7 +77,7 @@ def delete_employee_info():
 
 # Functions for customers
 @app.route('/get_customers', methods=['GET'])
-def query_records():
+def query_records_customer():
     return findAllCustomers()
 
 
@@ -107,19 +107,24 @@ def delete_customer_info():
 customer_bookings = {}
 car_status = {}
 
-@app.route('/order-car', methods=['POST'])
-def order_car(car_id, customer_id):
-    if customer_id in customer_bookings and car_id[customer_id]:
+
+@app.route('/order_car', methods=['POST'])
+def order_car():
+    data = request.json
+    customer_id = data.get('customer_id')
+    car_id = data.get('car_id')
+    if customer_id in customer_bookings and customer_bookings[customer_id]:
         return "Booking failed. You already have a car booking."
-    if car_id not in car_status or car_status[car_id] == 'booked':
+    if car_id not in car_status or car_status[car_id] is None:
         car_status[car_id] = 'booked'
-        return "The car you have requested is unfortunately not available."
-    else:
         customer_bookings[customer_id] = car_id
         return f"Order placed by Customer ID:{customer_id} for car ID: {car_id}"
+    else:
+
+        return f"Booking failed. Car is unavailable."
 
 
-@app.route('/cancel-order-car', methods=['PUT'])
+@app.route('/cancel_order_car', methods=['PUT'])
 def cancel_order():
     data = request.json
     customer_id = data.get('customer_id')
@@ -132,18 +137,19 @@ def cancel_order():
         return "Customer does not have a booking for this car", 400
 
 
-@app.route('/rent-car', methods =['PUT'])
+@app.route('/rent_car', methods=['PUT'])
 def rent_car():
     data = request.json
     customer_id = data.get('customer_id')
     car_id = data.get('car_id')
     if customer_id in customer_bookings and customer_bookings[customer_id] == car_id:
         car_status[car_id] = 'Rented'
+        return "Car rented successfully."
     else:
         return "Customer does not have a valid booking for this car.", 400
 
 
-@app.route('/return-car', methods =['POST'])
+@app.route('/return_car', methods=['POST'])
 def return_car():
     data = request.json
     customer_id = data.get('customer_id')
@@ -161,12 +167,3 @@ def return_car():
         return 'Car has been successfully returned'
     else:
         return 'Invalid. Customer has no active bookings for this car', 400
-
-
-
-
-
-
-
-
-
